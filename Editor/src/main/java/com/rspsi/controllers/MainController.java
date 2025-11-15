@@ -138,6 +138,9 @@ public class MainController {
 	private CheckMenuItem rememberLocation;
 
 	@FXML
+	private CheckMenuItem automaticOverlay;
+
+	@FXML
 	private CheckMenuItem showOverlaysCheckItem;
 
 	@FXML
@@ -352,6 +355,8 @@ public class MainController {
 
 	@FXML
 	private MenuItem showRemapperBtn;
+	@FXML
+	private MenuItem showReplacerBtn;
 
 	@FXML
 	private MenuItem setRelativeHeight;

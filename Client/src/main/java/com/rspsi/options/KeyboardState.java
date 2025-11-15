@@ -33,14 +33,14 @@ public class KeyboardState {
 	}
 
 	public static boolean nonExclusivePressed(List<KeyCode> list){
-		log.info("Currently down: {} | attempting to find {}", currentlyDown, list);
+		//log.info("Currently down: {} | attempting to find {}", currentlyDown, list);
 		if(currentlyDown.isEmpty())
 			return false;
 		return currentlyDown.containsAll(list);
 	}
 
 	public static boolean exclusivePressed(List<KeyCode> list) {
-		log.info("Currently down: {} | attempting to find {}", currentlyDown, list);
+		//log.info("Currently down: {} | attempting to find {}", currentlyDown, list);
 		if(currentlyDown.isEmpty())
 			return false;
 		return currentlyDown.containsAll(list) && currentlyDown.size() == list.size();

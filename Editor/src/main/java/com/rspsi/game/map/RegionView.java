@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.Optional;
 
 import javax.swing.JComponent;
@@ -22,7 +23,7 @@ public class RegionView extends JComponent {
 	private int hash;
 	private int regionX;
 	private int regionY;
-	public BufferedImage[] images;
+	public VolatileImage[] images;
 
 	@Override
 	public void invalidate(){
@@ -65,6 +66,7 @@ public class RegionView extends JComponent {
 	public void paintComponent(Graphics g){
 		//System.out.println("painting component");
 		//if(region.isVisible(minX, maxX, minY, maxY)){
+		//region.
 			Graphics2D g2d = (Graphics2D) g;
 			g.setFont(new Font("Helvetica", 0, 9));
 			boolean exists = MapTile.exists(regionX, regionY);
@@ -75,8 +77,6 @@ public class RegionView extends JComponent {
 				g.fillRect(0, 0, 64, 64);
 				TextRenderUtils.renderCenter(g2d, "NULL", 32, 18, Color.red.getRGB());
 				if(MapView.renderXY) {
-
-
 					TextRenderUtils.renderCenter(g2d, "X: " + (regionX * 64), 31, 33, Color.red.getRGB());
 					TextRenderUtils.renderCenter(g2d, "Y: " + (regionY * 64), 31, 43, Color.red.getRGB());
 				}
@@ -110,6 +110,7 @@ public class RegionView extends JComponent {
 
 				} else {
 					region = null;
+
 					g.drawImage(images[MapView.heightLevel.get()], 0, 0, this);
 					if(MapView.renderHash) {
 
@@ -126,7 +127,7 @@ public class RegionView extends JComponent {
 					}
 				}
 			}
-			//}	
+			//}
 
 			if(this.isSelected){
 				g.setColor(new java.awt.Color(104, 66, 244, 50));

@@ -1,6 +1,8 @@
 package com.rspsi.game.map;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -152,20 +154,47 @@ public class MapTile {
 			
 		}
 
+		VolatileImage createVolatileImage(Image img) {
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			GraphicsDevice gd = ge.getDefaultScreenDevice();
+			GraphicsConfiguration gc = gd.getDefaultConfiguration();
+
+			VolatileImage vImg = gc.createCompatibleVolatileImage(256, 256);
+			do {
+				if (vImg.validate(gc) == VolatileImage.IMAGE_INCOMPATIBLE) {
+					vImg = gc.createCompatibleVolatileImage(256, 256);
+				}
+				Graphics2D g = vImg.createGraphics();
+				g.drawImage(img, 0, 0, null);
+				g.dispose();
+			} while (vImg.contentsLost());
+			return vImg;
+		}
+
 		public void generateImages() {
-			view.images = new BufferedImage[4];
-			for(int z = 0;z<4;z++) {
-				int[] pixels = drawMinimapBasic(z);//ColourUtils.getARGB();
+                view.images = new VolatileImage[1];
+				int[] pixels = drawMinimapBasic(0);//ColourUtils.getARGB();
 				BufferedImage image = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-				
+
 				image.setRGB(0, 0, 256, 256, pixels, 0, 256);
+
 				try {
-					view.images[z] = Thumbnails.of(image).size(64, 64).asBufferedImage();
+					view.images[0] = createVolatileImage(Thumbnails.of(image).size(64, 64).asBufferedImage());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			}
-			view.invalidate();
+                /*for(int z = 0;z<4;z++) {
+                    int[] pixels = drawMinimapBasic(z);//ColourUtils.getARGB();
+                    BufferedImage image = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+
+                    image.setRGB(0, 0, 256, 256, pixels, 0, 256);
+                    try {
+                        view.images[z] = Thumbnails.of(image).size(64, 64).asBufferedImage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }*/
+                view.invalidate();
 		}
 		
 		public static boolean exists(int x, int y){

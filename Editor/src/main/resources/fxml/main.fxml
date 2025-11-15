@@ -304,7 +304,7 @@
                               <Insets right="-6.0" />
                            </HBox.margin>
                         </Button>
-                        <Slider fx:id="brushSizeSlider" blockIncrement="1.0" majorTickUnit="1.0" max="15.0" maxWidth="90.0" minorTickCount="0" snapToTicks="true">
+                        <Slider fx:id="brushSizeSlider" blockIncrement="1.0" majorTickUnit="1.0" max="65.0" maxWidth="90.0" minorTickCount="0" snapToTicks="true">
                            <tooltip>
                               <Tooltip fx:id="brushSizeTooltip" />
                            </tooltip></Slider>

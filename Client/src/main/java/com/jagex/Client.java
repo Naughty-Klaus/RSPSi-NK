@@ -1027,13 +1027,14 @@ public final class Client implements Runnable {
 
 			k += TextRenderUtils.renderLeft(gameImageBuffer, "Hover UID: " + hoveredUID + "", c, k, 0xffff00);
 
-			if(sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY] != null) {
-				SceneTile tile = sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY];
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "Simple Data: " + (tile.simple != null ? tile.simple.toString() : "") , c, k, 0xffff00);
+			if(sceneGraph.hoveredTileX >= 0 && sceneGraph.hoveredTileY >= 0)
+				if(sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY] != null) {
+					SceneTile tile = sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY];
+					k += TextRenderUtils.renderLeft(gameImageBuffer, "Simple Data: " + (tile.simple != null ? tile.simple.toString() : "") , c, k, 0xffff00);
 
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: "+ (tile.shape != null ? tile.shape.toString() : "null"), c, k, 0xffff00);
+					k += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: "+ (tile.shape != null ? tile.shape.toString() : "null"), c, k, 0xffff00);
 
-			}
+				}
 
 
 			if (hoveredUID != null) {

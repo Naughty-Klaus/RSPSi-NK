@@ -60,6 +60,7 @@ import com.jagex.util.MultiMapEncoder;
 import com.jagex.util.ObjectKey;
 import com.rspsi.controllers.MainController;
 import com.rspsi.controls.RemappingTool;
+import com.rspsi.controls.ReplacementTool;
 import com.rspsi.controls.SwatchControl;
 import com.rspsi.datasets.ObjectDataset;
 import com.rspsi.dialogs.TileCopyDialog;
@@ -109,6 +110,8 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public class MainWindow extends Application {
 
+	public static boolean automaticOverlay = false;
+
 	private static MainWindow singleton;
 
 	static {
@@ -152,6 +155,7 @@ public class MainWindow extends Application {
 	private SelectPackWindow selectPack;
 	private SelectXTEAWindow selectXTEA;
 	private RemappingTool remappingTool;
+	private ReplacementTool replacementTool;
 
 	private Mesh errorMesh;
 
@@ -450,12 +454,22 @@ public class MainWindow extends Application {
 			
 			remappingTool = new RemappingTool();
 			remappingTool.start(new Stage());
+
+			replacementTool = new ReplacementTool();
+			replacementTool.start(new Stage());
 			
 			controller.getShowRemapperBtn().setOnAction(evt -> {
 				remappingTool.show();
 				if(remappingTool.valid()) {
 					remappingTool.doRemap();
 				}
+			});
+
+			controller.getShowReplacerBtn().setOnAction(evt -> {
+				getReplacementTool().show();
+				/*if(getReplacementTool().valid()) {
+					remappingTool.doRemap();
+				}*/
 			});
 
 			controller.getShowFullMap().setOnAction(evt -> { 
@@ -642,6 +656,11 @@ public class MainWindow extends Application {
 				} else {
 					FXDialogs.showError(primaryStage,"Error while loading tile height", "There was a failure while attempting to grab\ntile height from the selected tile.");
 				}
+			});
+
+			controller.getAutomaticOverlay().setOnAction(evt -> {
+				Options.automaticOverlay.set(!Options.automaticOverlay.get());
+				System.out.println(Options.automaticOverlay.get());
 			});
 
 			controller.getGetOverlayFromTile().setOnAction(evt -> {

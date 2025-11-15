@@ -1,11 +1,12 @@
 package com.jagex.map;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 import com.rspsi.options.*;
 import javafx.scene.input.KeyCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.major.map.RenderFlags;
@@ -491,8 +493,16 @@ public class SceneGraph {
 		tiles[z][x][y].groundItem = item;
 	}
 
+	public static int getRegional(int i) {
+		return (i >> 3) - 6;
+	}
+
+	public static int getLocal(int i) {
+		return i - 8 * getRegional(i);
+	}
+
 	public ObjectKey addObject(int tileX, int tileY, int plane, int objectId, int objectType, int rotation,
-	                           boolean temporary) {
+							   boolean temporary) {
 		if (tiles[plane][tileX][tileY] == null) {
 			tiles[plane][tileX][tileY] = new SceneTile(tileX, tileY, plane);
 		}
@@ -508,18 +518,18 @@ public class SceneGraph {
 	}
 
 	public boolean addObject(int x, int y, int plane, int width, int length, Renderable renderable, ObjectKey key, int yaw,
-	                         int j, boolean temporary) {
+							 int j, boolean temporary) {
 		if (renderable == null)
 			return true;
 
-		int absoluteX = (x) * 128 + 64 * width;
-		int absoluteY = (y) * 128 + 64 * length;
+		int absoluteX = (x * 128) + (64 * width); // (x) * 128 + 64 * width;
+		int absoluteY = (y * 128) + (64 * length); //(y) * 128 + 64 * length;
 		return addRenderable(plane, x, y, width, length, absoluteX, absoluteY, j, renderable, yaw, false, key,
 				temporary);
 	}
 
 	private boolean addRenderable(int plane, int minX, int minY, int deltaX, int deltaY, int centreX, int centreY,
-	                              int renderHeight, Renderable renderable, int yaw, boolean flag, ObjectKey key, boolean temporary) {
+								  int renderHeight, Renderable renderable, int yaw, boolean flag, ObjectKey key, boolean temporary) {
 
 
 		for (int x = minX; x < minX + deltaX; x++) {
@@ -613,13 +623,14 @@ public class SceneGraph {
 	}
 
 	public boolean addRenderable(int plane, int worldY, Renderable renderable, int orientation, int i1, int j1,
-	                             int renderHeight, int minX, int i2, ObjectKey key, int minY, boolean temporary) {
+								 int renderHeight, int minX, int i2, ObjectKey key, int minY, boolean temporary) {
 		if (renderable == null)
 			return true;
 
 		return addRenderable(plane, minX, minY, i2 - minX + 1, i1 - minY + 1, j1, worldY, renderHeight, renderable,
 				orientation, true, key, temporary);
 	}
+
 
 	public void addTemporaryObject(int tileX, int tileY, int plane) {
 		if (Options.currentObject.get() != null) {
@@ -1036,6 +1047,259 @@ public class SceneGraph {
 					}
 				}
 			}
+		chunk.mapRegion.updateTiles();
+	}
+
+	public enum ObjectType {
+		WALL_STRAIGHT(0),
+		WALL_CORNER_DIAGONAL(1),
+		WALL_L(2),
+		WALL_SQUARE_CORNER(3),
+		WALLDECOR_STRAIGHT(4),
+		WALLDECOR_STRAIGHT_OFFSET(5),
+		WALLDECOR_DIAGONAL_NOOFFSET(6),
+		WALLDECOR_DIAGONAL_OFFSET(7),
+		WALLDECOR_DIAGONAL_BOTH(8),
+		WALL_DIAGONAL(9),
+		CENTREPIECE(10),
+		CENTREPIECE_DIAGONAL(11),
+		ROOF_STRAIGHT(12),
+		ROOF_DIAGONAL(13),
+		ROOF_DIAGONAL_WITH_ROOFEDGE(14),
+		ROOF_L_CONCAVE(15),
+		ROOF_L_CONVEX(16),
+		ROOF_FLAT(17),
+		ROOFEDGE_STRAIGHT(18),
+		ROOFEDGE_DIAGONALCORNER(19),
+		ROOFEDGE_L(20),
+		ROOFEDGE_SQUARECORNER(21),
+		GROUND_DECOR(22);
+
+		ObjectType(int id) {
+			this.id = id;
+		}
+
+		@Getter
+		public final int id;
+	}
+
+	private int flipRotation(int rotation) {
+		return (rotation + 2) % 4;
+	}
+
+	/*private int flipRotation(int rotation) {
+		switch (rotation) {
+			case 0: return 2;
+			case 1: return 3;
+			case 2: return 0;
+			case 3: return 1;
+		}
+		return 0;
+	}*/
+
+	public void replaceGameObjects(int src, int dst, SceneTile tile, ObjectType objectType, boolean flip, boolean fixOffset) {
+		int offsetX = 0;
+		int offsetY = 0;
+
+		if(tile.gameObjects != null) {
+			for(int i = 0; i < tile.gameObjects.length; i++) {
+				GameObject o = tile.gameObjects[i];
+
+				if(o != null && o.getId() == src && o.getKey().getType() == objectType.getId()) {
+
+					if(flip && fixOffset) {
+						if(o.getKey().getOrientation() == 0)
+							offsetX = -1;
+						else if (o.getKey().getOrientation() == 2)
+							offsetX = 1;
+						else if (o.getKey().getOrientation() == 1)
+							offsetY = 1;
+						else if (o.getKey().getOrientation() == 3)
+							offsetY = -1;
+					}
+
+					addObject(getLocal(o.getX() + offsetX), getLocal(o.getY() + offsetY), o.getPlane(), dst, objectType.getId(), !flip ? o.getKey().getOrientation() : flipRotation(o.getKey().getOrientation()), false);
+					if(flip && fixOffset)
+						removeObject(getLocal(o.getX()), getLocal(o.getY()), o.getPlane());
+					//tile.gameObjects[i] = null;
+					//addRenderable(z, o.minX, o.minY, o.getX(), o.getY(), o.centreX, o.centreY, o.getRenderHeight(), new Renderable(), o.yaw, true, null, false);
+				}
+			}
+		}
+	}
+
+	public void replaceGroundDecoration(int src, int dst, SceneTile tile, boolean flip, boolean fixOffset) {
+		int offsetX = 0;
+		int offsetY = 0;
+		if(tile.groundDecoration != null && tile.groundDecoration.getId() == src) {
+
+			if(flip && fixOffset) {
+				if(tile.groundDecoration.getKey().getOrientation() == 0)
+					offsetX = -1;
+				else if (tile.groundDecoration.getKey().getOrientation() == 2)
+					offsetX = 1;
+				else if (tile.groundDecoration.getKey().getOrientation() == 1)
+					offsetY = 1;
+				else if (tile.groundDecoration.getKey().getOrientation() == 3)
+					offsetY = -1;
+			}
+
+			addObject(tile.groundDecoration.getKey().getX() + offsetX, tile.groundDecoration.getKey().getY() + offsetY, tile.groundDecoration.getPlane(),
+					dst, 22, !flip ? tile.groundDecoration.getKey().getOrientation() : flipRotation(tile.groundDecoration.getKey().getOrientation()),
+					false);
+			if(flip && fixOffset)
+				removeFloorDecoration(tile.groundDecoration.getKey().getX(), tile.groundDecoration.getKey().getY(), tile.groundDecoration.getPlane());
+		}
+	}
+
+	public void replaceWall(int src, int dst, SceneTile tile, ObjectType objectType, boolean flip, boolean fixOffset) {
+		int offsetX = 0;
+		int offsetY = 0;
+		if(tile.wall != null && tile.wall.getId() == src && tile.wall.getKey().getType() == objectType.getId()) {
+
+			if(flip && fixOffset) {
+				if(tile.wall.getKey().getOrientation() == 0)
+					offsetX = -1;
+				else if (tile.wall.getKey().getOrientation() == 2)
+					offsetX = 1;
+				else if (tile.wall.getKey().getOrientation() == 1)
+					offsetY = 1;
+				else if (tile.wall.getKey().getOrientation() == 3)
+					offsetY = -1;
+			}
+
+			addObject(tile.wall.getKey().getX() + offsetX, tile.wall.getKey().getY() + offsetY, tile.wall.getPlane(),
+					dst, objectType.getId(), !flip ? tile.wall.getKey().getOrientation() : flipRotation(tile.wall.getKey().getOrientation()),
+					false);
+			if(flip && fixOffset)
+				removeWall(tile.wall.getKey().getX(), tile.wall.getKey().getY(), tile.wall.getPlane());
+		}
+	}
+
+	public void replaceWallDecoration(int src, int dst, SceneTile tile, ObjectType objectType, boolean flip, boolean fixOffset) {
+		int offsetX = 0;
+		int offsetY = 0;
+		if(tile.wallDecoration != null && tile.wallDecoration.getId() == src && tile.wallDecoration.getKey().getType() == objectType.getId()) {
+
+			if(flip && fixOffset) {
+				if(tile.wallDecoration.getKey().getOrientation() == 0)
+					offsetX = -1;
+				else if (tile.wallDecoration.getKey().getOrientation() == 2)
+					offsetX = 1;
+				else if (tile.wallDecoration.getKey().getOrientation() == 1)
+					offsetY = 1;
+				else if (tile.wallDecoration.getKey().getOrientation() == 3)
+					offsetY = -1;
+			}
+
+			addObject(tile.wallDecoration.getKey().getX() + offsetX, tile.wallDecoration.getKey().getY() + offsetY, tile.wallDecoration.getPlane(),
+					dst, objectType.getId(), !flip ? tile.wallDecoration.getKey().getOrientation() : flipRotation(tile.wallDecoration.getKey().getOrientation()),
+					false);
+			if(flip && fixOffset)
+				removeWallDecoration(tile.wallDecoration.getKey().getX(), tile.wallDecoration.getKey().getY(), tile.wallDecoration.getPlane());
+		}
+	}
+
+	/*public void replaceSelectedObjects(int src, int dst, ObjectType objectType, boolean flip) {
+		for (int z = Options.currentHeight.get(); z <= Options.currentHeight.get(); z++)
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < length; y++) {
+					if (tiles[z][x][y] != null
+							&& tiles[Options.currentHeight.get()][x][y].tileSelected) {
+
+						//System.out.println("tile not null");
+						SceneTile tile = tiles[z][x][y];
+
+						switch (objectType) {
+							case WALL_CORNER_DIAGONAL:
+							case WALL_SQUARE_CORNER:
+							case WALL_L:
+							case WALL_DIAGONAL:
+							case WALL_STRAIGHT:
+								//tile.wall;
+								replaceWall(src, dst, tile, objectType, flip);
+								break;
+							case WALLDECOR_DIAGONAL_BOTH:
+							case WALLDECOR_DIAGONAL_NOOFFSET:
+							case WALLDECOR_DIAGONAL_OFFSET:
+							case WALLDECOR_STRAIGHT:
+							case WALLDECOR_STRAIGHT_OFFSET:
+								//tile.wallDecoration;
+								replaceWallDecoration(src, dst, tile, objectType, flip);
+								break;
+							case GROUND_DECOR:
+								//tile.groundDecoration;
+								replaceGroundDecoration(src, dst, tile, flip);
+								break;
+							case CENTREPIECE:
+							case CENTREPIECE_DIAGONAL:
+								//tile.gameObjects;
+								replaceGameObjects(src, dst, tile, objectType, flip);
+								break;
+							case ROOF_FLAT:
+							case ROOF_DIAGONAL:
+							case ROOF_DIAGONAL_WITH_ROOFEDGE:
+							case ROOF_L_CONCAVE:
+							case ROOF_L_CONVEX:
+							case ROOF_STRAIGHT:
+								//tile.gameObjects;
+								replaceGameObjects(src, dst, tile, objectType, flip);
+								break;
+							case ROOFEDGE_L:
+							case ROOFEDGE_STRAIGHT:
+							case ROOFEDGE_SQUARECORNER:
+							case ROOFEDGE_DIAGONALCORNER:
+								//tile.gameObjects; // maybe wall / wall decor
+								replaceGameObjects(src, dst, tile, objectType, flip);
+
+								break;
+
+						}
+
+
+					}
+				}
+			}
+		chunk.mapRegion.updateTiles();
+	}*/
+
+	public void replaceSelectedObjects(int src, int dst, ObjectType objectType, boolean flip, boolean fixOffset) {
+		for (int z = Options.currentHeight.get(); z <= Options.currentHeight.get(); z++) {
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < length; y++) {
+					SceneTile tile = tiles[z][x][y];
+					if (tile != null && tile.tileSelected) {
+
+						switch (objectType) {
+							case WALL_CORNER_DIAGONAL:
+							case WALL_SQUARE_CORNER:
+							case WALL_L:
+							case WALL_DIAGONAL:
+							case WALL_STRAIGHT:
+								replaceWall(src, dst, tile, objectType, flip, fixOffset);
+								break;
+
+							case WALLDECOR_DIAGONAL_BOTH:
+							case WALLDECOR_DIAGONAL_NOOFFSET:
+							case WALLDECOR_DIAGONAL_OFFSET:
+							case WALLDECOR_STRAIGHT:
+							case WALLDECOR_STRAIGHT_OFFSET:
+								replaceWallDecoration(src, dst, tile, objectType, flip, fixOffset);
+								break;
+
+							case GROUND_DECOR:
+								replaceGroundDecoration(src, dst, tile, flip, fixOffset);
+								break;
+
+							default:
+								replaceGameObjects(src, dst, tile, objectType, flip, fixOffset);
+								break;
+						}
+					}
+				}
+			}
+		}
+
 		chunk.mapRegion.updateTiles();
 	}
 
@@ -1671,7 +1935,7 @@ public class SceneGraph {
 										((TileChange<OverlayState>) currentState.get()).preserveTileState(tileState);
 									}
 									if (Options.overlayPaintShapeId.get() == 0 || KeyBindings.actionValid(KeyActions.OVERLAY_REMOVE)) {
-										this.getMapRegion().overlays[plane][absX][absY] = (byte) 0;
+										this.getMapRegion().overlays[plane][absX][absY] = (short) 0;
 									} else {
 										if (!KeyBindings.actionValid(KeyActions.OVERLAY_ONLY_PAINT)) {
 											this.getMapRegion().overlays[plane][absX][absY] = (byte) Options.overlayPaintId
@@ -1700,8 +1964,12 @@ public class SceneGraph {
 
 							},
 							(absX, absY) -> {
-
 								if (Options.currentTool.get() == ToolType.PAINT_OVERLAY) {
+									if (KeyboardState.isKeyPressed(KeyCode.CONTROL)) {
+										Options.overlayPaintShapeId.set(this.getMapRegion().overlayShapes[plane][absX][absY] + 1);
+										Options.rotation.set(this.getMapRegion().overlayOrientations[plane][absX][absY]);
+									}
+
 									if (KeyBindings.actionValid(KeyActions.OVERLAY_REMOVE)) {
 										int existing = getMapRegion().overlays[plane][absX][absY];
 										int shape = getMapRegion().overlayShapes[plane][absX][absY];
@@ -1842,11 +2110,36 @@ public class SceneGraph {
 
 							if (data.getGameObjectIds() != null) {
 								for (int i = 0; i < data.getGameObjectIds().length; i++) {
-
-									this.addObject(xPos, yPos, zPos, data.getGameObjectIds()[i],
+									ObjectDefinition def = ObjectDefinitionLoader.lookup(data.getGameObjectIds()[i]);
+									int width = def.getWidth();
+									int length = def.getLength();
+									if ((data.getGameObjectConfigs()[i] & 0x1) == 1) {
+										width = def.getLength();
+										length = def.getWidth();
+									}
+									int offX = 0;
+									int offY = 0;
+									switch (Options.rotation.get()) {
+										case 1:
+											offX = 1 - length;
+											break;
+										case 2:
+											offX = 1 - width;
+											offY = 1 - length;
+											break;
+										case 3:
+											offY = 1 - width;
+											break;
+									}
+									this.addObject(
+											xPos + offX,
+											yPos + offY,
+											zPos,
+											data.getGameObjectIds()[i],
 											data.getGameObjectConfigs()[i] >> 2,
-											((data.getGameObjectConfigs()[i] & 0xff) - (Options.rotation.get())) & 3, false);
-
+											(data.getGameObjectConfigs()[i] & 0xff) - Options.rotation.get() & 3,
+											false
+									);
 								}
 							}
 							if (data.getGroundDecoId() != -1) {
@@ -1901,18 +2194,46 @@ public class SceneGraph {
 							if (data.getGameObjectIds() != null) {
 								for (int i = 0; i < data.getGameObjectIds().length; i++) {
 									ObjectDefinition def = ObjectDefinitionLoader.lookup(data.getGameObjectIds()[i]);
+									int width = def.getWidth();
+									int length = def.getLength();
+									if ((data.getGameObjectConfigs()[i] & 0x1) == 1) {
+										width = def.getLength();
+										length = def.getWidth();
+									}
+									int offX = 0;
+									int offY = 0;
+									switch (Options.rotation.get()) {
+										case 1:
+											offX = 1 - length;
+											break;
+										case 2:
+											offX = 1 - width;
+											offY = 1 - length;
+											break;
+										case 3:
+											offY = 1 - width;
+											break;
+									}
 									if (def.getWidth() > 1 || def.getLength() > 1) {
-
-										this.addObject(rotatedXPos, rotatedYPos, zPos, data.getGameObjectIds()[i],
+										this.addObject(
+												rotatedXPos + offX,
+												rotatedYPos + offY,
+												zPos,
+												data.getGameObjectIds()[i],
 												data.getGameObjectConfigs()[i] >> 2,
-												(data.getGameObjectConfigs()[i] & 0xff) - Options.rotation.get() & 3, true);
-
+												(data.getGameObjectConfigs()[i] & 0xff) - Options.rotation.get() & 3,
+												true
+										);
 									} else {
-
-										this.addObject(rotatedXPos, rotatedYPos, zPos, data.getGameObjectIds()[i],
+										this.addObject(
+												rotatedXPos,
+												rotatedYPos,
+												zPos,
+												data.getGameObjectIds()[i],
 												data.getGameObjectConfigs()[i] >> 2,
-												(data.getGameObjectConfigs()[i] & 0xff) - Options.rotation.get() & 3, true);
-
+												(data.getGameObjectConfigs()[i] & 0xff) - Options.rotation.get() & 3,
+												true
+										);
 									}
 								}
 							}
@@ -1944,11 +2265,11 @@ public class SceneGraph {
 						return;
 					if (mouseIsDown) {
 						this.resetTiles();
-						if (!getTile(plane, tileX, tileY).contains(currentObject.getId(), currentObject.getType()))
+						if (!getTile(plane, tileX, tileY).contains(currentObject.getId(), currentObject.getType())) {
 							getMapRegion().spawnObjectToWorld(this, currentObject.getId(),
 									tileX, tileY, plane, currentObject.getType(),
 									Options.rotation.get(), false);
-						else {
+						} else {
 							System.out.println("OBJEXISTS");
 						}
 						SceneGraph.minimapUpdate = true;
@@ -2035,9 +2356,9 @@ public class SceneGraph {
 
 							},
 							(absX, absY) -> {
-							//	if(Options.brushSize.get() == 1 || absX == hoveredTileX - Options.brushSize.get() && absY == hoveredTileY - Options.brushSize.get()){
-							//		this.addTemporaryTile(plane, absX, absY, 3, 3, -1, GameRasterizer.getInstance().getFuchsia(), 62000);
-							//	}
+								//	if(Options.brushSize.get() == 1 || absX == hoveredTileX - Options.brushSize.get() && absY == hoveredTileY - Options.brushSize.get()){
+								//		this.addTemporaryTile(plane, absX, absY, 3, 3, -1, GameRasterizer.getInstance().getFuchsia(), 62000);
+								//	}
 							}, null);
 
 					if (!ctrlDown && Config.HEIGHT_SMOOTHING) {
@@ -2067,7 +2388,6 @@ public class SceneGraph {
 
 		}
 	}
-
 	public void brushSelection(double brushSize, boolean doHighlight, BiConsumer<Integer, Integer> onMouseDown, BiConsumer<Integer, Integer> onHighlight, Runnable onEnd) {
 		int tileX = hoveredTileX;
 		int tileY = hoveredTileY;

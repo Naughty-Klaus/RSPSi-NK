@@ -65,11 +65,13 @@ public class KeyBindings {
 				.consumesEvent(true)
 				.onValid(keyEvent ->  {
 					Options.rotation.set((Options.rotation.get() - 1) & 3);
+					System.out.println("New rotation: " +  Options.rotation.get());
 				});
 		addBind(KeyActions.ROTATE_CLOCKWISE, KeyEvent.KEY_RELEASED, KeyCode.E)
 				.consumesEvent(true)
 				.onValid(keyEvent ->  {
 					Options.rotation.set((Options.rotation.get() + 1) & 3);
+					System.out.println("New rotation: " +  Options.rotation.get());
 				});
 	}
 	

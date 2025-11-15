@@ -188,7 +188,7 @@
                                                 <Font name="JetBrains Mono Regular" size="10.0" />
                                              </font>
                                           </Button>
-                                          <Slider fx:id="brushSizeSlider" blockIncrement="1.0" focusTraversable="false" majorTickUnit="1.0" max="15.0" maxWidth="60.0" minorTickCount="0" snapToTicks="true">
+                                          <Slider fx:id="brushSizeSlider" blockIncrement="1.0" focusTraversable="false" majorTickUnit="1.0" max="65.0" maxWidth="60.0" minorTickCount="0" snapToTicks="true">
                                              <tooltip>
                                                 <Tooltip fx:id="brushSizeTooltip" />
                                              </tooltip>
@@ -533,6 +533,7 @@
                               <MenuItem fx:id="showFullMap" mnemonicParsing="false" text="Show full map" />
                               <MenuItem fx:id="showObjectViewBtn" mnemonicParsing="false" text="Show object view" />
                               <MenuItem fx:id="showRemapperBtn" mnemonicParsing="false" text="Show remapper" />
+                              <MenuItem fx:id="showReplacerBtn" mnemonicParsing="false" text="Show replacer" />
                               <SeparatorMenuItem mnemonicParsing="false" />
                               <MenuItem fx:id="reloadSwatchesBtn" mnemonicParsing="false" text="Reload swatches" />
                               <MenuItem fx:id="reloadModelsBtn" mnemonicParsing="false" text="Reload models" />
@@ -542,6 +543,7 @@
                           <items>
                               <CheckMenuItem fx:id="rememberSize" mnemonicParsing="false" text="Remember Editor Size" />
                               <CheckMenuItem fx:id="rememberLocation" mnemonicParsing="false" text="Remember Editor Location" />
+                              <CheckMenuItem fx:id="automaticOverlay" mnemonicParsing="false" text="Automatically Select Overlay" />
                           </items>
                       </Menu>
                     <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">

@@ -1,18 +1,10 @@
 package com.rspsi.game.map;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import com.rspsi.MainWindow;
@@ -131,7 +123,24 @@ public class MapView extends JFrame {
 		Thread t = new Thread(() -> {
 			for(int y = 150;y>=0;y--) {
 				for(int x = 0;x<150;x++) {
-					RegionView r = new RegionView(x, y);
+					RegionView r = new RegionView(x, y) {
+						@Override
+						public void paint(Graphics g) {
+							JPanel viewport = (JPanel) getParent();
+							if (viewport != null) {
+								Rectangle visibleRect = viewport.getVisibleRect();
+								if (!visibleRect.intersects(getBounds())) {
+									return;
+								}
+							} else {
+								System.out.println("JViewport is null!");
+							}
+
+							super.paint(g);
+						}
+
+
+					};
 					r.addMouseListener(listener);
 					r.setSize(new Dimension(64, 64));
 					r.setLocation(new Point(x * 64, (64 * 149) - y * 64));//Swapped for horizontal view

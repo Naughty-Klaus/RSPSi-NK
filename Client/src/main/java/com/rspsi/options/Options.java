@@ -18,6 +18,8 @@ import javafx.beans.property.SimpleObjectProperty;
 
 public class Options {
 
+	public static BooleanProperty automaticOverlay = new SimpleBooleanProperty(false);
+
 	public static BooleanProperty showOverlayNumbers = new SimpleBooleanProperty(false);
 	public static BooleanProperty showUnderlayNumbers = new SimpleBooleanProperty(false);
 	public static BooleanProperty showTileHeightNumbers = new SimpleBooleanProperty(false);
