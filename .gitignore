@@ -11,6 +11,8 @@ out/
 .classpath
 
 .project
+/plugins/active/
+/plugins/inactive/
 
 hs_err_*
 /Editor/plugins/
