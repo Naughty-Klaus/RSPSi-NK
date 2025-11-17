@@ -50,10 +50,14 @@
                                           <Image url="@../images/logo128.png" />
                                        </image>
                                     </ImageView>
-                                    <ToggleButton fx:id="selectTileBtn" accessibleHelp="Select Tiles" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" selected="true" text="S_T">
-                                       <font>
-                                          <Font name="JetBrains Mono Regular" size="8.0" />
-                                       </font>
+                                    <ToggleButton fx:id="selectTileBtn" accessibleHelp="Select Tiles" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" selected="true">
+                                        <graphic>
+                                            <ImageView fx:id="iconView3" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/s_t.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
                                        <toggleGroup>
                                           <ToggleGroup fx:id="toolGroup" />
                                        </toggleGroup>
@@ -65,10 +69,14 @@
                                           </Tooltip>
                                        </tooltip>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="selectObjectBtn" accessibleHelp="Select Objects" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="S_O" toggleGroup="$toolGroup">
-                                       <font>
-                                          <Font name="JetBrains Mono Regular" size="8.0" />
-                                       </font>
+                                    <ToggleButton fx:id="selectObjectBtn" accessibleHelp="Select Objects" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" toggleGroup="$toolGroup">
+                                        <graphic>
+                                            <ImageView fx:id="iconView4" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/s_o.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
                                        <tooltip>
                                           <Tooltip text="Select Object">
                                              <font>
@@ -77,10 +85,14 @@
                                           </Tooltip>
                                        </tooltip>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="deleteObjectBtn" accessibleHelp="Delete Objects" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="D_O" toggleGroup="$toolGroup">
-                                       <font>
-                                          <Font name="JetBrains Mono Regular" size="8.0" />
-                                       </font>
+                                    <ToggleButton fx:id="deleteObjectBtn" accessibleHelp="Delete Objects" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" toggleGroup="$toolGroup">
+                                        <graphic>
+                                            <ImageView fx:id="iconView2" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/d_o.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
                                        <tooltip>
                                           <Tooltip text="Delete Object">
                                              <font>
@@ -89,10 +101,14 @@
                                           </Tooltip>
                                        </tooltip>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="heightModifyBtn" accessibleHelp="Modify Heights" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="M_H" toggleGroup="$toolGroup">
-                                       <font>
-                                          <Font name="JetBrains Mono Regular" size="8.0" />
-                                       </font>
+                                    <ToggleButton fx:id="heightModifyBtn" accessibleHelp="Modify Heights" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" toggleGroup="$toolGroup">
+                                        <graphic>
+                                            <ImageView fx:id="iconView5" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/m_h.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
                                        <tooltip>
                                           <Tooltip text="Modify Height">
                                              <font>
@@ -101,10 +117,14 @@
                                           </Tooltip>
                                        </tooltip>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="paintOverlayBtn" accessibleHelp="Paint Overlays" focusTraversable="false" layoutX="23.0" layoutY="193.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="P_O" toggleGroup="$toolGroup">
-                                       <font>
-                                          <Font name="JetBrains Mono Regular" size="8.0" />
-                                       </font>
+                                    <ToggleButton fx:id="paintOverlayBtn" accessibleHelp="Paint Overlays" focusTraversable="false" layoutX="23.0" layoutY="193.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" toggleGroup="$toolGroup">
+                                        <graphic>
+                                            <ImageView fx:id="iconView1" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/p_o.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
                                        <tooltip>
                                           <Tooltip text="Paint Overlays">
                                              <font>
@@ -113,22 +133,34 @@
                                           </Tooltip>
                                        </tooltip>
                                     </ToggleButton>
-                                    <ToggleButton fx:id="paintUnderlayBtn" accessibleHelp="Paint Underlays" focusTraversable="false" layoutX="23.0" layoutY="235.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="P_U" toggleGroup="$toolGroup">
-                                       <font>
+                                    <ToggleButton fx:id="paintUnderlayBtn" contentDisplay="GRAPHIC_ONLY" accessibleHelp="Paint Underlays" focusTraversable="false" layoutX="23.0" layoutY="235.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" text="" toggleGroup="$toolGroup">
+                                        <graphic>
+                                            <ImageView fx:id="iconView0" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/p_u.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
+                                        <tooltip>
+                                            <Tooltip text="Paint Underlays">
+                                                <font>
+                                                    <Font name="JetBrains Mono Regular" size="13.0" />
+                                                </font>
+                                            </Tooltip>
+                                        </tooltip>
+                                        <!--<font>
                                           <Font name="JetBrains Mono Regular" size="8.0" />
                                        </font>
-                                       <tooltip>
-                                          <Tooltip text="Paint Underlays">
-                                             <font>
-                                                <Font name="JetBrains Mono Regular" size="13.0" />
-                                             </font>
-                                          </Tooltip>
-                                       </tooltip>
+                                       -->
                                     </ToggleButton>
-                                    <ToggleButton fx:id="setFlagBtn" accessibleHelp="Set Flags" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="S_F" toggleGroup="$toolGroup">
-                                       <font>
-                                          <Font name="JetBrains Mono Regular" size="8.0" />
-                                       </font>
+                                    <ToggleButton fx:id="setFlagBtn" accessibleHelp="Set Flags" focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" toggleGroup="$toolGroup">
+                                        <graphic>
+                                            <ImageView fx:id="iconView6" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                                <image>
+                                                    <Image url="@../images/s_f.png" />
+                                                </image>
+                                            </ImageView>
+                                        </graphic>
                                        <tooltip>
                                           <Tooltip text="Set Tile Flags">
                                              <font>
