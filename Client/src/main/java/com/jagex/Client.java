@@ -1026,9 +1026,6 @@ public final class Client implements Runnable {
 						String s = "Disable render on map (16): true";
 						k += TextRenderUtils.renderLeft(gameImageBuffer, s, c + TextRenderUtils.textWidth(gameImageBuffer, s), k, i1);
 					}
-
-					//k += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: "+ (tile.shape != null ? tile.shape.toString() : "null"), c, k, 0xffff00);
-
 				}
 			}
 		}
@@ -1079,15 +1076,6 @@ public final class Client implements Runnable {
 			if(hoveredUID != null)
 				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Hover UID: " + hoveredUID, textX, textY, textColor);
 
-			/*if(sceneGraph.hoveredTileX >= 0 && sceneGraph.hoveredTileY >= 0)
-				if(sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY] != null) {
-					SceneTile tile = sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY];
-					k += TextRenderUtils.renderLeft(gameImageBuffer, "Simple Data: " + (tile.simple != null ? tile.simple.toString() : "") , c, k, 0xffff00);
-
-					k += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: "+ (tile.shape != null ? tile.shape.toString() : "null"), c, k, 0xffff00);
-
-				}*/
-
 			int hoveredTileX = SceneGraph.hoveredTileX;
 			int hoveredTileY = SceneGraph.hoveredTileY;
 
@@ -1125,7 +1113,7 @@ public final class Client implements Runnable {
 						}
 
 						// This goes way off the screen causing a crash, so it needs a different approach
-						//textY += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: " + shape, textX, textY, textColor);
+						// textY += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: " + shape, textX, textY, textColor);
 
 						if (!Objects.equals(shape, "null")) {
 							textY += TextRenderUtils.renderLeft(gameImageBuffer, "Shape Data:", textX, textY, 0x00aaff);
@@ -1163,7 +1151,7 @@ public final class Client implements Runnable {
 
 				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Type: " + type + " | Rot: " + orientation, textX, textY, textColor);
 
-				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Pos: " + x + ", " + y, textX, textY,  textColor);
+				TextRenderUtils.renderLeft(gameImageBuffer, "Pos: " + x + ", " + y, textX, textY,  textColor);
 			}
 
 		}
