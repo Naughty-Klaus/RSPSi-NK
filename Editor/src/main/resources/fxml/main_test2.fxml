@@ -120,6 +120,7 @@
                                     <CheckMenuItem fx:id="allHeightsCheckItem" mnemonicParsing="false" text="Show all height levels" />
                                     <CheckMenuItem fx:id="disableBlendingCheckItem" mnemonicParsing="false" text="Disable blending" />
                                     <SeparatorMenuItem mnemonicParsing="false" />
+                                    <CheckMenuItem fx:id="showFlagsOnHover" mnemonicParsing="false" text="Display tile flags on hover" />
                                     <CheckMenuItem fx:id="showBlockedFlag" mnemonicParsing="false" text="Show unwalkable flags" />
                                     <CheckMenuItem fx:id="showBridgeFlag" mnemonicParsing="false" text="Show bridge flags" />
                                     <CheckMenuItem fx:id="showLowestFlag" mnemonicParsing="false" text="Show lowest plane flags" />

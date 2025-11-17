@@ -247,6 +247,9 @@ public class MainController {
 	private MenuItem redoMenuItem;
 
 	@FXML
+	private CheckMenuItem showFlagsOnHover;
+
+	@FXML
 	private CheckMenuItem showBlockedFlag;
 
 	@FXML
@@ -527,6 +530,7 @@ public class MainController {
 		Options.showUnderlayNumbers.bindBidirectional(this.displayUnderlayIds.selectedProperty());
 		Options.showTileHeightNumbers.bindBidirectional(this.displayTileHeights.selectedProperty());
 
+		Options.showFlagsOnHover.bindBidirectional(this.showFlagsOnHover.selectedProperty());
 		Options.showBlockedFlag.bindBidirectional(this.showBlockedFlag.selectedProperty());
 		Options.showBridgeFlag.bindBidirectional(this.showBridgeFlag.selectedProperty());
 

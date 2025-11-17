@@ -34,6 +34,7 @@ public class Options {
 	
 	public static BooleanProperty absoluteHeightProperty = new SimpleBooleanProperty(false);
 
+	public static BooleanProperty showFlagsOnHover = new SimpleBooleanProperty(false);
 	public static BooleanProperty showBlockedFlag = new SimpleBooleanProperty(false);
 	public static BooleanProperty showBridgeFlag = new SimpleBooleanProperty(false);
 	public static BooleanProperty showForceLowestPlaneFlag = new SimpleBooleanProperty(false);

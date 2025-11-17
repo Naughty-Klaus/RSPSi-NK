@@ -2,6 +2,7 @@ package com.jagex;
 
 import com.jagex.map.SceneGraph;
 import com.jagex.map.tile.SceneTile;
+import com.jagex.util.BitFlag;
 import com.rspsi.options.KeyboardState;
 import javafx.scene.input.KeyCode;
 import org.displee.cache.index.archive.Archive;
@@ -14,9 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,6 +69,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.major.map.RenderFlags;
 
 
 @Slf4j
@@ -990,52 +990,153 @@ public final class Client implements Runnable {
 		}
 	}
 
-	public final void drawDebugOverlay() {
+	public void drawDebugOverlay() {
 
-		if (Options.showDebug.get()) {
-			int c = (int) gameCanvas.getWidth() - 20;
+		if(Options.showFlagsOnHover.get()) {
+			int c = 20;
 			int k = 40;
 			int i1 = 0xffff00;
-			if (fps < 15) {
-				i1 = 0xff0000;
+
+			if(sceneGraph.hoveredTileX >= 0 && sceneGraph.hoveredTileY >= 0) {
+				if(sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY] != null) {
+					SceneTile tile = sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY];
+					BitFlag flag = new BitFlag(tile.tileFlags);
+
+					if(flag.flagged(RenderFlags.BLOCKED_TILE)) {
+						String s = "Unwalkable (1): true";
+						k += TextRenderUtils.renderLeft(gameImageBuffer, s, c + TextRenderUtils.textWidth(gameImageBuffer, s), k, i1);
+					}
+
+					if(flag.flagged(RenderFlags.BRIDGE_TILE)) {
+						String s = "Bridge (2): true";
+						k += TextRenderUtils.renderLeft(gameImageBuffer, s, c + TextRenderUtils.textWidth(gameImageBuffer, s), k, i1);
+					}
+
+					if(flag.flagged(RenderFlags.FORCE_LOWEST_PLANE)) {
+						String s = "Remove Roof (4): true";
+						k += TextRenderUtils.renderLeft(gameImageBuffer, s, c + TextRenderUtils.textWidth(gameImageBuffer, s), k, i1);
+					}
+
+					if(flag.flagged(RenderFlags.RENDER_ON_LOWER_Z)) {
+						String s = "Remove on Z - 1 (8): true";
+						k += TextRenderUtils.renderLeft(gameImageBuffer, s, c + TextRenderUtils.textWidth(gameImageBuffer, s), k, i1);
+					}
+
+					if(flag.flagged(RenderFlags.DISABLE_RENDERING)) {
+						String s = "Disable render on map (16): true";
+						k += TextRenderUtils.renderLeft(gameImageBuffer, s, c + TextRenderUtils.textWidth(gameImageBuffer, s), k, i1);
+					}
+
+					//k += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: "+ (tile.shape != null ? tile.shape.toString() : "null"), c, k, 0xffff00);
+
+				}
 			}
-			if(this.getCurrentChunk() != null) {
-				Chunk chunk = this.getCurrentChunk();
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "WorldX: " + (chunk.regionX * 64) + " WorldY: " + (chunk.regionY * 64), c, k, i1);
+		}
+
+		if (Options.showDebug.get()) {
+			int textX = (int) gameCanvas.getWidth() - 20;
+			int textY = 40;
+			int textColor = 0xffff00;
+
+			if (fps < 15) {
+				textColor = 0xff0000; // red
 			}
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Fps: " + fps, c, k, i1);
+			int currentHeight = Options.currentHeight.get();
+
+			boolean hasCurrentChunk = getCurrentChunk() != null;
+
+			if(hasCurrentChunk) {
+				Chunk chunk = this.getCurrentChunk();
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "WorldX: " + (chunk.regionX * 64) + " WorldY: " + (chunk.regionY * 64), textX, textY, textColor);
+
+				if(getCurrentChunk().tileMapName != null && getCurrentChunk().objectMapName != null)
+					textY += TextRenderUtils.renderLeft(gameImageBuffer, "Chunk map files:  "  + getCurrentChunk().tileMapName + " " + getCurrentChunk().objectMapName, textX, textY, 0xffff00);
+			}
+
+			textY += TextRenderUtils.renderLeft(gameImageBuffer, "Fps: " + fps, textX, textY, textColor);
 			Runtime runtime = Runtime.getRuntime();
 			int memory = (int) ((runtime.totalMemory() - runtime.freeMemory()) / 1024);
-			i1 = 0xffff00;
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Mem: " + memory / 1024 + "MB", c, k, 0xffff00);
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Chunk map files:  "  + getCurrentChunk().tileMapName + " " + getCurrentChunk().objectMapName + " ", c, k, 0xffff00);
+			textColor = 0xffff00;
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Mouse: " + mouseEventX + "," + mouseEventY + "", c, k, 0xffff00);
+			textY += TextRenderUtils.renderLeft(gameImageBuffer, "Mem: " + memory / 1024 + "MB", textX, textY, textColor);
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Mouse Tile: " + sceneGraph.hoveredTileX + "," + sceneGraph.hoveredTileY + "", c, k,
-					0xffff00);
+			textY += TextRenderUtils.renderLeft(gameImageBuffer, "Mouse: " + mouseEventX + "," + mouseEventY, textX, textY, textColor);
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Height: " + Options.currentHeight.get() + " Pos:" + xCameraPos / 128 + ","
-					+ yCameraPos / 128 + "," + zCameraPos + "", c, k, 0xffff00);
+			textY += TextRenderUtils.renderLeft(gameImageBuffer, "Mouse Tile: " + SceneGraph.hoveredTileX + "," + SceneGraph.hoveredTileY, textX, textY,
+					textColor);
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Camera: " + xCameraCurve + "," + yCameraCurve + "," + cameraRoll + "," + cameraYaw + "",
-					c, k, 0xffff00);
+			textY += TextRenderUtils.renderLeft(gameImageBuffer, "Height: " + currentHeight + " Pos:" + xCameraPos / 128 + ","
+					+ yCameraPos / 128 + "," + zCameraPos + "", textX, textY, textColor);
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Tool: " + Options.currentTool.get().name() + "", c, k, 0xffff00);
+			textY += TextRenderUtils.renderLeft(gameImageBuffer, "Camera: " + xCameraCurve + "," + yCameraCurve + "," + cameraRoll + "," + cameraYaw,
+					textX, textY, textColor);
 
-			k += TextRenderUtils.renderLeft(gameImageBuffer, "Hover UID: " + hoveredUID + "", c, k, 0xffff00);
+			if(Options.currentTool.get() != null)
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Tool: " + Options.currentTool.get().name(), textX, textY, textColor);
 
-			if(sceneGraph.hoveredTileX >= 0 && sceneGraph.hoveredTileY >= 0)
+			if(hoveredUID != null)
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Hover UID: " + hoveredUID, textX, textY, textColor);
+
+			/*if(sceneGraph.hoveredTileX >= 0 && sceneGraph.hoveredTileY >= 0)
 				if(sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY] != null) {
 					SceneTile tile = sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY];
 					k += TextRenderUtils.renderLeft(gameImageBuffer, "Simple Data: " + (tile.simple != null ? tile.simple.toString() : "") , c, k, 0xffff00);
 
 					k += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: "+ (tile.shape != null ? tile.shape.toString() : "null"), c, k, 0xffff00);
 
-				}
+				}*/
 
+			int hoveredTileX = SceneGraph.hoveredTileX;
+			int hoveredTileY = SceneGraph.hoveredTileY;
+
+			if(hoveredTileY >= 0 && hoveredTileX >= 0) {
+				MapRegion region = sceneGraph.getMapRegion();
+
+				if (region != null &&
+						region.underlays != null &&
+						region.overlays != null &&
+						currentHeight < region.underlays.length &&
+						hoveredTileX < region.underlays[currentHeight].length &&
+						hoveredTileY < region.underlays[currentHeight][hoveredTileX].length) {
+					textY += TextRenderUtils.renderLeft(gameImageBuffer, "Underlay id: " + ((sceneGraph.getMapRegion().underlays[currentHeight][hoveredTileX][hoveredTileY] & 0xff) - 1), textX, textY, textColor);
+					textY += TextRenderUtils.renderLeft(gameImageBuffer, "Overlay id: " + ((sceneGraph.getMapRegion().overlays[currentHeight][hoveredTileX][hoveredTileY] & 0xff) - 1), textX, textY, textColor);
+				}
+			}
+
+			if(sceneGraph.hoveredTileX >= 0 && sceneGraph.hoveredTileY >= 0)
+				if(sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY] != null) {
+					SceneTile tile = sceneGraph.tiles[Options.currentHeight.get()][sceneGraph.hoveredTileX][sceneGraph.hoveredTileY];
+					if(tile != null) {
+						boolean hasSimple = tile.simple != null;
+						boolean hasShape = tile.shape != null;
+
+						String simple = hasSimple ? tile.simple.toString() : "null";
+						String shape = hasShape ? tile.shape.toString() : "null";
+
+						if (!Objects.equals(simple, "null")) {
+							textY += TextRenderUtils.renderLeft(gameImageBuffer, "Simple Data:", textX, textY, 0x00aaff);
+
+							List<String> formatted = truncateObjectString(simple);
+							for (String line : formatted) {
+								textY += TextRenderUtils.renderLeft(gameImageBuffer, line, textX, textY, 0x00aaff);
+							}
+						}
+
+						// This goes way off the screen causing a crash, so it needs a different approach
+						//textY += TextRenderUtils.renderLeft(gameImageBuffer, "Shaped Data: " + shape, textX, textY, textColor);
+
+						if (!Objects.equals(shape, "null")) {
+							textY += TextRenderUtils.renderLeft(gameImageBuffer, "Shape Data:", textX, textY, 0x00aaff);
+
+							List<String> formatted = truncateObjectString(shape);
+							for (String line : formatted) {
+								textY += TextRenderUtils.renderLeft(gameImageBuffer, line, textX, textY, 0x00aaff);
+							}
+						}
+					}
+				}
 
 			if (hoveredUID != null) {
 				ObjectKey key = hoveredUID;
@@ -1046,18 +1147,56 @@ public final class Client implements Runnable {
 				int y = key.getY();
 				int x = key.getX();
 				ObjectDefinition def = ObjectDefinitionLoader.lookup(id);
-				c += 10;
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "Name: " + def.getName(), c, k, 0xffff00);
 
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "ID: " + id + "", c, k, 0xffff00);
+				String name;
 
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "Type: " + type + " | Rot: " + orientation, c, k, 0xffff00);
+				if(def == null)
+					return;
+				else {
+                    name = def.getName();
+				}
 
-				k += TextRenderUtils.renderLeft(gameImageBuffer, "Pos: " + x + ", " + y, c, k,  0xffff00);
+				textX += 10;
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Name: " + name, textX, textY, textColor);
+
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "ID: " + id, textX, textY, textColor);
+
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Type: " + type + " | Rot: " + orientation, textX, textY, textColor);
+
+				textY += TextRenderUtils.renderLeft(gameImageBuffer, "Pos: " + x + ", " + y, textX, textY,  textColor);
 			}
 
 		}
 	}
+
+	public static List<String> truncateObjectString(String raw) {
+		raw = raw.substring(raw.indexOf('(') + 1, raw.lastIndexOf(')'));
+
+		String[] parts = raw.split(", (?=[a-zA-Z0-9_]+=)");
+
+		List<String> lines = new ArrayList<>();
+		StringBuilder line = new StringBuilder();
+
+		for (int i = 0; i < parts.length; i++) {
+			if (line.length() > 0) {
+				line.append(", ");
+			}
+
+			line.append(parts[i]);
+
+			if ((i + 1) % 3 == 0) {
+				lines.add(line.toString());
+				line.setLength(0);
+			}
+		}
+
+		if (line.length() > 0) {
+			lines.add(line.toString());
+		}
+
+		return lines;
+	}
+
 
 	public final void method118() {
 		aBoolean831 = false;

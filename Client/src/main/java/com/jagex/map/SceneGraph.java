@@ -1965,7 +1965,7 @@ public class SceneGraph {
 							},
 							(absX, absY) -> {
 								if (Options.currentTool.get() == ToolType.PAINT_OVERLAY) {
-									if (KeyboardState.isKeyPressed(KeyCode.CONTROL)) {
+									if (KeyboardState.isKeyPressed(KeyCode.CONTROL) || Options.automaticOverlay.get()) {
 										Options.overlayPaintShapeId.set(this.getMapRegion().overlayShapes[plane][absX][absY] + 1);
 										Options.rotation.set(this.getMapRegion().overlayOrientations[plane][absX][absY]);
 									}
@@ -3091,39 +3091,29 @@ public class SceneGraph {
 				}
 			}
 			if (Options.showUnderlayNumbers.get()) {
-				if (activeTile != null) {
-					try {
-						int underlayId = getMapRegion().underlays[activeTile.plane][activeTile.positionX][activeTile.positionY] - 1;
-						if (underlayId > 0 && screenPos.getX() > 0 && screenPos.getY() > 0)
-							Client.getSingleton().robotoFont.drawString("" + underlayId, (int) screenPos.getX(), (int) screenPos.getY(), 0xffff00);
-					} catch (Exception e) {
-					}
-				}
-			}
+                try {
+                    int underlayId = (getMapRegion().underlays[activeTile.plane][activeTile.positionX][activeTile.positionY] & 0xff) - 1;
+                    if (underlayId > 0 && screenPos.getX() > 0 && screenPos.getY() > 0)
+                        Client.getSingleton().robotoFont.drawString("" + underlayId, (int) screenPos.getX(), (int) screenPos.getY(), 0xffff00);
+                } catch (Exception e) {}
+            }
 			if (Options.showOverlayNumbers.get()) {
-				if (activeTile != null) {
-					try {
-						int overlayId = getMapRegion().overlays[activeTile.plane][activeTile.positionX][activeTile.positionY] - 1;
-						if (overlayId > 0 && screenPos.getX() > 0 && screenPos.getY() > 0)
-							Client.getSingleton().robotoFont.drawString("" + overlayId, (int) screenPos.getX(), (int) screenPos.getY(), 0xffff00);
-					} catch (Exception e) {
-					}
-				}
-			}
+                try {
+					int overlayId = (getMapRegion().overlays[activeTile.plane][activeTile.positionX][activeTile.positionY] & 0xff) - 1;
+                    if (overlayId > 0 && screenPos.getX() > 0 && screenPos.getY() > 0)
+                        Client.getSingleton().robotoFont.drawString("" + overlayId, (int) screenPos.getX(), (int) screenPos.getY(), 0xffff00);
+                } catch (Exception e) {}
+            }
 
 			if (Options.showTileHeightNumbers.get()) {
-				if (activeTile != null) {
-					try {
-						int tileHeight = getMapRegion().tileHeights[activeTile.plane][activeTile.positionX][activeTile.positionY];
-						if (activeTile.plane > 0 && !Options.absoluteHeightProperty.get())
-							tileHeight -= getMapRegion().tileHeights[activeTile.plane - 1][activeTile.positionX][activeTile.positionY];
-						if (screenPos.getX() > 0 && screenPos.getY() > 0)
-							Client.getSingleton().robotoFont.drawString("" + (-tileHeight), (int) screenPos.getX(), (int) screenPos.getY(), 0xffff00);
-					} catch (Exception e) {
-					}
-
-				}
-			}
+                try {
+                    int tileHeight = getMapRegion().tileHeights[activeTile.plane][activeTile.positionX][activeTile.positionY];
+                    if (activeTile.plane > 0 && !Options.absoluteHeightProperty.get())
+                        tileHeight -= getMapRegion().tileHeights[activeTile.plane - 1][activeTile.positionX][activeTile.positionY];
+                    if (screenPos.getX() > 0 && screenPos.getY() > 0)
+                        Client.getSingleton().robotoFont.drawString("" + (-tileHeight), (int) screenPos.getX(), (int) screenPos.getY(), 0xffff00);
+                } catch (Exception e) {}
+            }
 		}
 	}
 
@@ -5026,30 +5016,29 @@ public class SceneGraph {
 		this.offsetY = chunk.offsetY;
 	}
 
-	public byte getSelectedUnderlay() {
+	public int getSelectedUnderlay() {
 		int plane = Options.currentHeight.get();
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < length; y++) {
 				SceneTile selectedTile = getTile(plane, x, y);
 				if (selectedTile != null) {
 					if (selectedTile.tileSelected) {
-						return getMapRegion().underlays[plane][x][y];
+						return getMapRegion().underlays[plane][x][y] & 0xff;
 					}
-
 				}
 			}
 		}
 		return -1;
 	}
 
-	public byte getSelectedOverlay() {
+	public int getSelectedOverlay() {
 		int plane = Options.currentHeight.get();
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < length; y++) {
 				SceneTile selectedTile = getTile(plane, x, y);
 				if (selectedTile != null) {
 					if (selectedTile.tileSelected) {
-						return getMapRegion().overlays[plane][x][y];
+						return getMapRegion().overlays[plane][x][y] & 0xff;
 					}
 
 				}

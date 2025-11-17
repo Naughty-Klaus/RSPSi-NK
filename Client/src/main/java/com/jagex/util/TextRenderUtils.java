@@ -7,7 +7,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class TextRenderUtils {
-	
+
+	public static int textWidth(ImageGraphicsBuffer g, String text) {
+		return g.getGraphics().getFontMetrics().stringWidth(text);
+	}
+
 	public static int renderCenter(Graphics2D g, String text, double x, double y, int colour) {
 		int xOffset = g.getFontMetrics().stringWidth(text) / 2;
 		int yOffset = g.getFontMetrics().getHeight() / 2;

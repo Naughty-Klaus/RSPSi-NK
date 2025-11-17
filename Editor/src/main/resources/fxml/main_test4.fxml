@@ -479,6 +479,7 @@
                               <CheckMenuItem fx:id="disableBlendingCheckItem" mnemonicParsing="false" text="Disable blending" />
                               <CheckMenuItem fx:id="simulateBridges" disable="true" mnemonicParsing="false" text="Simulate Bridges" />
                               <SeparatorMenuItem mnemonicParsing="false" />
+                              <CheckMenuItem fx:id="showFlagsOnHover" mnemonicParsing="false" text="Display tile flags on hover" />
                               <CheckMenuItem fx:id="showBlockedFlag" mnemonicParsing="false" text="Show unwalkable flags" />
                               <CheckMenuItem fx:id="showBridgeFlag" mnemonicParsing="false" text="Show bridge flags" />
                               <CheckMenuItem fx:id="showLowestFlag" mnemonicParsing="false" text="Show remove roof flags" />

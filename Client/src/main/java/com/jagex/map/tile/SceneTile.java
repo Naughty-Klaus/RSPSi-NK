@@ -64,13 +64,10 @@ public final class SceneTile extends Linkable {
 	public Optional<ShapedTile> temporaryShapedTile = Optional.empty();
 	@ToString.Exclude
 	public Optional<SimpleTile> temporarySimpleTile = Optional.empty();
-	public byte tileFlags;
-	
-	public byte getTileFlags() {
-		return tileFlags;
-	}
-	
-	public int attributes() {
+	@Getter
+    public byte tileFlags;
+
+    public int attributes() {
 		if(temporaryObjectAttributes.isPresent())
 			return attributes | temporaryObjectAttributes.get().intValue();
 		return attributes;
